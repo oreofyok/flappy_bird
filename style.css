@@ -9,7 +9,7 @@ canvas{
     border: 5px solid #2e2e2e;
     border-radius: 10px;
     display: block;
-    margin: 50px auto;
+    margin: 20px auto;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     background-image: url('imgs/logo.jfif');
     background-size: cover;
@@ -21,6 +21,21 @@ canvas{
 .backdrop-blur{
     filter: blur(5px);
     /* filter:hue-rotate(180deg); */
+}
+#start-menu{
+    display: block;
+    margin: 0px auto;
+    width: 200px;
+    padding: 20px;
+    text-align: center;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%,50%);
+    z-index: 2;
+    border: 2px solid;
 }
 
 #end-menu{
@@ -40,9 +55,9 @@ canvas{
     border: 2px solid;
 }
 
-#score-display{
+#score-display ,#dash-display , #game-container h3{
     color: #fff;
-    font-size: 2em;
+    font-size: 1.5em;
     text-align: center;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }

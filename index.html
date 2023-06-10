@@ -10,7 +10,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    
+    <div id="start-menu">
+        <h1>flappy bird</h1>
+        <h3>Tutorial</h3>
+        <p>space bar to fly</p>
+        <p>D to dash</p>
+        <button id="start-button">Start</button>
+    </div>
     <div id="end-menu">
         <h1>Game Over</h1>
         <p>Score: <span id="end-score"></span></p>
@@ -19,7 +25,9 @@
     </div>
     <div id="game-container">
         <canvas id="game-canvas" width="400" height="600"></canvas>
-        <div id="score-display">0</div>
+        <h3>Score: <span id="score-display">0</span> |  Dash: <span id="dash-display">0</span></h3>
+        <!-- <div id="score-display">0</div> -->
+        
         
     </div>
 
