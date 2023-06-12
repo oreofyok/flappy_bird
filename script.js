@@ -6,19 +6,33 @@ const scoreDisplay = document.getElementById('score-display');
 
 
 const flappyImg = new Image();
-flappyImg.src = 'imgs/logo.jfif';
-const dashItem = new Image();
-dashItem.src = 'imgs/school.jfif'
+flappyImg.src = 'imgs/birdWingUp.png';
+const flappyWingImg = new Image();
+flappyWingImg.src = 'imgs/birdWingDown.png';
+const flappyDash = new Image();
+flappyDash.src = 'imgs/birder.png';
+
+const dashItemRed = new Image();
+dashItemRed.src = 'imgs/redPearl.png';
+const dashItemGreen = new Image();
+dashItemGreen.src = 'imgs/greenPearl.png';
+const dashItemBlue = new Image();
+dashItemBlue.src = 'imgs/bluePearl.png';
+const dashItemYellow = new Image();
+dashItemYellow.src = 'imgs/yellowPearl.png';
+
+const pipe = new Image();
+pipe.src = 'imgs/sea.jpg';
 
 
 //game constants
-const FLAP_SPEED =  -5;
+const FLAP_SPEED =  -4;
 const BIRD_WIDTH = 40;
 const BIRD_HEIGHT = 30;
 const PIPE_WIDTH = 50;
 const PIPE_GAP = 125;
-const dashItem_WIDTH = 15;
-const dashItem_HEIGHT = 15;
+const dashItem_WIDTH = 25;
+const dashItem_HEIGHT = 25;
 
 //Bird variables
 let birdX = 50;
@@ -44,17 +58,41 @@ let highScore = 0;
 let rounds = 0;
 let dash = 0;
 
+let bird;
+let birdFlap;
+
+let flyer = "up";
+
+let itemStop = true;
+
 document.body.onkeyup = function(e){
     if(e.code == 'Space'){
-        birdVelocity = FLAP_SPEED;
+        flyer = "up";
+        birdVelocity = FLAP_SPEED; 
+    } 
+}
+
+document.body.onkeydown = function(e){
+    if(e.code == 'Space'){
+        flyer = "down"; 
     }
 }
 
 document.addEventListener('keydown', function(e){
-    if(e.key === 'd' && dash > 0){
+    
+    if(e.key === 'd' ){
+        flyer = "up";
+        
+    }
+    
+ })
+
+ document.addEventListener('keyup', function(e){
+    if(e.key === 'd' ){
+        flyer = "dash";
         pipeX -= 160;
         birdVelocity = -1;
-        if(rounds > 4){
+        if(rounds > 4 && dashItemX < 400){
             dashItemX -= 160;
         }
         dash--;
@@ -106,6 +144,8 @@ function getDashItem(){
         birdBox.y < dashItemLocate.y+dashItemLocate.height){
             return true;
         }
+    
+        
     
     return false;
 }
@@ -207,23 +247,55 @@ function endGame(){
     showEndMenu(); 
 }
 
+function flyerMotion(){
+    if(flyer == "up"){
+        //bird = ctx.drawImage(flappyWingImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+        bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+    }
+    else if(flyer == "down"){
+        //bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+        bird = ctx.drawImage(flappyWingImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+        //bird.style.width = 500+"px";
+    }
+    else if(flyer == "dash"){
+        bird = ctx.drawImage(flappyDash,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+    }
+}
+
+function dashItemMotion(){
+    if(dashItemX % 2){
+        ctx.drawImage(dashItemRed,dashItemX,dashItemY,dashItem_WIDTH,dashItem_HEIGHT);
+    }
+    else if(dashItemX % 3){
+        ctx.drawImage(dashItemGreen,dashItemX,dashItemY,dashItem_WIDTH,dashItem_HEIGHT);
+    }
+    else if(dashItemX % 5){
+        ctx.drawImage(dashItemBlue,dashItemX,dashItemY,dashItem_WIDTH,dashItem_HEIGHT);
+    }
+    else if(dashItemX % 7){
+        ctx.drawImage(dashItemYellow,dashItemX,dashItemY,dashItem_WIDTH,dashItem_HEIGHT);
+    }
+    
+}
+
 async function loop(){
     //reset the ctx after every loop iteration
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     //draw flappy bird
-    ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
-    ctx.drawImage(dashItem,dashItemX,dashItemY,dashItem_WIDTH,dashItem_HEIGHT);
+    //bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
+    dashItemMotion();
 
     // ctx.font = "30px Arial";
     // ctx.fillStyle = "black";
     // ctx.fillText("DASH: "+dash,dashItemShowX,dashItemShowY);
     
+    flyerMotion();
+    
 
     //draw pipe
     ctx.fillStyle = '#333'; 
     ctx.fillRect(pipeX,-100,PIPE_WIDTH,pipeY);
-    ctx.fillStyle = 'red';
     ctx.fillRect(pipeX,pipeY+PIPE_GAP,PIPE_WIDTH,canvas.height-pipeY);
 
     //collision
@@ -234,8 +306,8 @@ async function loop(){
 
     //dashItem
     if(getDashItem()){
-        dashItemX = -100;
-        dash++;
+        dashItemX = -40;
+        dash += 5;
         document.getElementById("dash-display").innerHTML = dash;
     }
 
@@ -268,21 +340,23 @@ async function loop(){
         scoreDisplay.innerHTML = score;
     }
 
-    if(rounds % 5 == 0){ // rounds don't divide by 5 
-        if(rounds > 4){
-            dashItemX -= 2.5;
-        }
-        if(rounds > 9){
-            dashItemX -= 3;
-        }
-        
-        console.log("rounds % 5 = "+rounds%5);
+    //dashItem
+    if(itemStop == false){
+        dashItemX -= 1;
     }
-    else if(!rounds % 5 == 0 && rounds > 4){ // rounds divide by 5 
+    else if(itemStop == true){
         dashItemX = 400;
-        dashItemY = Math.floor(Math.random() * 600 + 1);
-        console.log("!rounds % 5 = "+rounds%5);
+        dashItemY = Math.floor(Math.random() * 500 + 100);
+        if(rounds%5 == 0 && rounds > 2){
+            itemStop = false;
+        }
     }
+    if(dashItemX < -20){
+        itemStop = true;
+        dashItemX = -40;
+    }
+    
+    
     
 
     //gravity
