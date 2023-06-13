@@ -3,8 +3,13 @@ const ctx = canvas.getContext("2d");
 // we will need the gamecontainer to make it blurry when we display the end menu
 const gameContainer = document.getElementById('game-container');
 const scoreDisplay = document.getElementById('score-display');
+const dashDisplay = document.getElementById("dash-display");
+const control = document.getElementById("control");
 
-
+const background = new Image();
+background.src = 'imgs/sea.jpg';
+let backgroundX = 0;
+let backgroundY = 0;
 const flappyImg = new Image();
 flappyImg.src = 'imgs/birdWingUp.png';
 const flappyWingImg = new Image();
@@ -21,12 +26,14 @@ dashItemBlue.src = 'imgs/bluePearl.png';
 const dashItemYellow = new Image();
 dashItemYellow.src = 'imgs/yellowPearl.png';
 
-const pipe = new Image();
-pipe.src = 'imgs/sea.jpg';
+const pipeUp = new Image();
+pipeUp.src = 'imgs/tropicalTree.png';
+const pipeDown = new Image();
+pipeDown.src = 'imgs/tropicalTreeDown.png';
 
 
 //game constants
-const FLAP_SPEED =  -4;
+const FLAP_SPEED =  -5;
 const BIRD_WIDTH = 40;
 const BIRD_HEIGHT = 30;
 const PIPE_WIDTH = 50;
@@ -65,44 +72,88 @@ let flyer = "up";
 
 let itemStop = true;
 
-document.body.onkeyup = function(e){
+let pauseGame = false;
+
+let initX = 0;
+let initY = 0;
+
+
+document.onkeyup = function(e){
     if(e.code == 'Space'){
         flyer = "up";
         birdVelocity = FLAP_SPEED; 
     } 
 }
 
-document.body.onkeydown = function(e){
-    if(e.code == 'Space'){
-        flyer = "down"; 
-    }
+document.onkeydown = function(e){
+    if(e.code === 'Space'){
+        flyer = "down";
+         
+    } 
 }
 
 document.addEventListener('keydown', function(e){
-    
-    if(e.key === 'd' ){
-        flyer = "up";
-        
+    if(e.key === 'd' && dash > 0){
+        flyer = "down";
+        dashDisplay.style.color = "red";
     }
     
  })
 
  document.addEventListener('keyup', function(e){
-    if(e.key === 'd' ){
+    if(e.key === 'd' && dash > 0){
         flyer = "dash";
         pipeX -= 160;
         birdVelocity = -1;
+        backgroundX -= 16;
         if(rounds > 4 && dashItemX < 400){
             dashItemX -= 160;
         }
         dash--;
-        document.getElementById("dash-display").innerHTML = dash;
+        
     }
+    dashDisplay.style.color = "white";
+    dashDisplay.innerHTML = dash;
  })
 
+control.onclick = (() => {
+    if(pauseGame == false){
+        pauseGame = true;
+        pauseIcon.classList.add("fa-play-circle");
+        pauseIcon.classList.remove("fa-pause-circle");
+    }
+    else if(pauseGame == true){
+        pauseGame = false;
+        pauseIcon.classList.remove("fa-play-circle");
+        pauseIcon.classList.add("fa-pause-circle");
+        loop();
+    }
+})
 
+function runScript(e) {
+    //See notes about 'which' and 'key'
+    if (e.keyCode == 13) {
+        console.log("enter");
+        return false;
+    }
+}
+//pauseGame
+document.body.onkeydown = function(e){
+    if(e.code == 'Enter' && pauseGame == false){
+        pauseGame = true;
+        pauseIcon.classList.add("fa-play-circle");
+        pauseIcon.classList.remove("fa-pause-circle"); 
+    }
+    else if(e.code == 'Enter' && pauseGame == true){
+        pauseGame = false;
+        pauseIcon.classList.remove("fa-play-circle");
+        pauseIcon.classList.add("fa-pause-circle");
+        loop();
+    }
+}
 
 document.getElementById('restart-button').addEventListener('click',function() {
+    control.style.display = "block";
     hideEndMenu();
     resetGame();
     loop();
@@ -110,6 +161,7 @@ document.getElementById('restart-button').addEventListener('click',function() {
 
 document.getElementById('start-button').onclick = function(){
     hideStartMenu();
+    control.style.display = "block";
     loop();
 }
 
@@ -144,9 +196,6 @@ function getDashItem(){
         birdBox.y < dashItemLocate.y+dashItemLocate.height){
             return true;
         }
-    
-        
-    
     return false;
 }
 
@@ -206,6 +255,7 @@ function hideEndMenu(){
 }
 
 function showEndMenu(){
+    control.style.display = "none";
     document.getElementById('end-menu').style.display = 'block';
     gameContainer.classList.add('backdrop-blur');
     document.getElementById('end-score').innerHTML = score;
@@ -240,6 +290,7 @@ function resetGame()  {
     dash = 0;
     document.getElementById("dash-display").innerHTML = dash;
     dashItemX = 400;
+    backgroundX = 0;
     document.getElementById('score-display').innerHTML = score;
 }
 
@@ -249,13 +300,10 @@ function endGame(){
 
 function flyerMotion(){
     if(flyer == "up"){
-        //bird = ctx.drawImage(flappyWingImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
         bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
     }
     else if(flyer == "down"){
-        //bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
         bird = ctx.drawImage(flappyWingImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
-        //bird.style.width = 500+"px";
     }
     else if(flyer == "dash"){
         bird = ctx.drawImage(flappyDash,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
@@ -281,42 +329,53 @@ function dashItemMotion(){
 async function loop(){
     //reset the ctx after every loop iteration
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
+    ctx.drawImage(background,backgroundX,backgroundY,800,600);
+    if(backgroundX < -200){
+        backgroundX = 0;
+    }
+    
     //draw flappy bird
     //bird = ctx.drawImage(flappyImg,birdX,birdY,BIRD_WIDTH,BIRD_HEIGHT);
     dashItemMotion();
 
-    // ctx.font = "30px Arial";
-    // ctx.fillStyle = "black";
-    // ctx.fillText("DASH: "+dash,dashItemShowX,dashItemShowY);
-    
     flyerMotion();
-    
-
     //draw pipe
-    ctx.fillStyle = '#333'; 
-    ctx.fillRect(pipeX,-100,PIPE_WIDTH,pipeY);
-    ctx.fillRect(pipeX,pipeY+PIPE_GAP,PIPE_WIDTH,canvas.height-pipeY);
-
+    // ctx.fillStyle = '#333'; 
+    // ctx.fillRect(pipeX,-100,PIPE_WIDTH,pipeY);
+    // ctx.fillRect(pipeX,pipeY+PIPE_GAP,PIPE_WIDTH,canvas.height-pipeY);
+    ctx.drawImage(pipeDown,pipeX,-100,PIPE_WIDTH,pipeY);
+    ctx.drawImage(pipeUp,pipeX,pipeY+PIPE_GAP,PIPE_WIDTH,canvas.height-pipeY);
     //collision
     if(collisionCheck()){
         endGame();
         return;
     }
 
+    if(pauseGame){
+        return;
+    }
     //dashItem
+    dashDisplay.style.color = "white";
+    dashDisplay.innerHTML = dash;
     if(getDashItem()){
         dashItemX = -40;
-        dash += 5;
-        document.getElementById("dash-display").innerHTML = dash;
+        dash += 2;
+        dashDisplay.style.color = "green";
+        dashDisplay.innerHTML = dash;
     }
 
     //move pipe
-    if(rounds < 10){
+    if(rounds < 15){
         pipeX -= 1.5; 
+        backgroundX -= 0.1;
     }
-    else if(rounds >= 10){
-        pipeX -= 2;
+    else if(rounds >= 15 && rounds < 40){
+        pipeX -= rounds / 10;
+        backgroundX -= rounds/100;
+    }
+    else if(rounds >= 40){
+        pipeX -= 4;
+        backgroundX -= 0.4;
     }
 
     if(pipeX <= -45){
@@ -328,7 +387,7 @@ async function loop(){
     }
     
     if(pipeX <= 7 && rounds == score){
-        scoreDisplay.style.color = "red";
+        scoreDisplay.style.color = "blue";
         scoreDisplay.style.fontSize = 1.5+"em"; 
         score++;
         document.getElementById("score-display").innerHTML = score;
@@ -356,18 +415,12 @@ async function loop(){
         dashItemX = -40;
     }
     
-    
-    
-
     //gravity
     birdVelocity += birdAcceleration;
     birdY += birdVelocity;
 
     increaseScore()
     requestAnimationFrame(loop);
-    
-
-    
 }
 //34.30
 

@@ -16,6 +16,7 @@ canvas{
     background-repeat: no-repeat;
     /*we will make the end menu overlap the game canvas, so we need here a lower z-index*/
     z-index: 1;
+    
 }
 
 .backdrop-blur{
@@ -24,7 +25,7 @@ canvas{
 }
 #start-menu{
     display: block;
-    margin: -60px auto;
+    margin: -120px auto;
     width: 200px;
     padding: 20px;
     text-align: center;
@@ -53,6 +54,31 @@ canvas{
     transform: translate(-50%,50%);
     z-index: 1;
     border: 2px solid;
+}
+
+#control{
+    display: none;
+}
+
+i {
+    display: none;
+    position: fixed;
+    width: fit-content;
+    background-color: white;
+    right: 100px;
+    top: 0px;
+    padding: 10px;
+    text-align: center;
+    /* background-color: wheat; */
+    border-radius: 50px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: absolute;
+    left: 68%;
+    transform: translate(-50%,50%);
+    z-index: 1;
+    cursor: pointer;
+    
+    /* border: 2px solid; */
 }
 
 #score-display ,#dash-display , #game-container h3{
